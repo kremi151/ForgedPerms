@@ -19,9 +19,7 @@ sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-group = 'lu.kremi151' // TODO
-//version = '0.0.1.0-5.0.0'
-//description = '3D TicTacToe for SpongeAPI'
+group = 'lu.kremi151'
 
 minecraft {
     version = "1.11.2-13.20.1.2393"
