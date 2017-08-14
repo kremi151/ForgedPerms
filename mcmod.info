@@ -1,0 +1,19 @@
+[
+    {
+        "modid": "forgedperms",
+        "name": "ForgedPerms",
+        "version": "1.0.0.1",
+        "description": "Linking the Forge permission API to the one of SpongeForge",
+        "authorList": [
+            "kremi151"
+        ],
+        "dependencies": [
+            "spongeapi@6.1.0-SNAPSHOT",
+            "forge"
+        ],
+        "requiredMods": [
+            "spongeapi@6.1.0-SNAPSHOT",
+            "forge"
+        ]
+    }
+]

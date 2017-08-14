@@ -1,0 +1,47 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'org.spongepowered.plugin' version '0.8.1'
+}
+
+apply plugin: 'java'
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+group = 'lu.kremi151' // TODO
+//version = '0.0.1.0-5.0.0'
+//description = '3D TicTacToe for SpongeAPI'
+
+minecraft {
+    version = "1.11.2-13.20.1.2393"
+    mappings = "stable_32"
+}
+
+repositories {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'sponge'
+            url = 'https://repo.spongepowered.org/maven'
+        }
+        maven {
+            name = 'forge'
+            url = 'http://files.minecraftforge.net/maven'
+        }
+    }
+}
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:6.1.0-SNAPSHOT'
+}
