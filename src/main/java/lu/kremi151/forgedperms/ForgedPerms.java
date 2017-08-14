@@ -1,10 +1,11 @@
 package lu.kremi151.forgedperms;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -15,6 +16,8 @@ import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import com.google.inject.Inject;
 
@@ -23,8 +26,10 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
-@Plugin(id = "forgedperms", name = "ForgedPerms", version = "1.0.0.1", authors = {"kremi151"}, description = "Linking the Forge permission API to the one of SpongeForge", dependencies = {@Dependency(id = "forge")})
+@Plugin(id = "forgedperms", name = "ForgedPerms", version = ForgedPerms.VERSION, authors = {"kremi151"}, description = "Linking the Forge permission API to the one of SpongeForge", dependencies = {@Dependency(id = "forge")})
 public class ForgedPerms {
+	
+	public static final String VERSION = "1.0.0.1";
 	
 	@Inject
 	private Logger logger;
@@ -52,27 +57,40 @@ public class ForgedPerms {
 		
 		if(logStartup)logger.info("Fetching Sponge permission service and linking it to the Forge permission API...");
 		this.container = Sponge.getPluginManager().fromInstance(this).orElseThrow(() -> new RuntimeException("Unexpected error"));
-		
-		Optional<PermissionService> perms = Sponge.getGame().getServiceManager().provide(PermissionService.class);
+
 		PermissionAPI.setPermissionHandler(handler);
-		if(perms.isPresent()) {
-			switchHandler(perms.get());
-		}
+		Sponge.getGame().getServiceManager().provide(PermissionService.class).ifPresent(service -> switchHandler(service));
+		
+		Sponge.getGame().getCommandManager().register(this, CommandSpec.builder()
+					.executor((src, args) -> {
+						src.sendMessages(
+								Text.of("ForgedPerms v" + VERSION), 
+								Text.join(Text.of("Current used permission service: "), handler.getHandlerRepresentation().orElse(Text.of(TextColors.RED, "none")))
+								);
+						return CommandResult.success();
+					})
+					.permission("forgedperms")
+					.build()
+				, "forgedperms");
 	}
 	
 	@Listener
 	public void gameStopping(GameStoppingEvent event) {
 		try {
-			CommentedConfigurationNode node = config.load();
-			CommentedConfigurationNode loggingNode = node.getNode("logging")
-					.setComment("Configuration entries for console logs");
-			loggingNode.getNode("startup").setValue(this.logStartup).setComment("Log at plugin startup");
-			loggingNode.getNode("switch").setValue(this.logHandlerSwitches).setComment("Log when permission handler switches");
-			
-			config.save(node);
+			saveConfig();
 		} catch (IOException e) {
 			logger.error("Error saving configuration", e);
 		}
+	}
+	
+	private void saveConfig() throws IOException {
+		CommentedConfigurationNode node = config.load();
+		CommentedConfigurationNode loggingNode = node.getNode("logging")
+				.setComment("Configuration entries for console logs");
+		loggingNode.getNode("startup").setValue(this.logStartup).setComment("Log at plugin startup");
+		loggingNode.getNode("switch").setValue(this.logHandlerSwitches).setComment("Log when permission handler switches");
+		
+		config.save(node);
 	}
 	
 	@Listener

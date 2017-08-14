@@ -9,9 +9,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.service.ProviderRegistration;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import com.mojang.authlib.GameProfile;
@@ -33,6 +36,24 @@ public class ForgePermissionHandler implements IPermissionHandler{
 	void switchPermissionService(@Nonnull PermissionService perms) {
 		if(perms == null)throw new NullPointerException("The supplied Sponge permission service must not be null");
 		this.perms = perms;
+	}
+	
+	Optional<Text> getHandlerRepresentation(){
+		if(perms != null) {
+			Optional<ProviderRegistration<PermissionService>> op = Sponge.getGame().getServiceManager().getRegistration(PermissionService.class);
+			if(op.isPresent()) {
+				if(op.get().getProvider() == perms) {
+					return Optional.of(Text.of(TextColors.YELLOW, perms.getClass().getName(), TextColors.RESET, " (", TextColors.GOLD, op.get().getPlugin().getId(), TextColors.RESET, ")"));
+				}else {
+					//This should not happen normally
+					return Optional.of(Text.of(TextColors.YELLOW, perms.getClass().getName(), TextColors.RED, "[Desynchronized, current permission service is " + op.get().getProvider().getClass() + " (" + op.get().getPlugin().getId() + ")]"));
+				}
+			}else {
+				return Optional.of(Text.of(TextColors.YELLOW, perms.getClass().getName()));
+			}
+		}else {
+			return Optional.empty();
+		}
 	}
 
 	@Override
