@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.service.ProviderRegistration;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
@@ -26,6 +24,7 @@ import net.minecraftforge.server.permission.context.IContext;
 public class ForgePermissionHandler implements IPermissionHandler{
 	
 	private PermissionService perms;
+	private String plugin_id;
 	private final ForgedPerms plugin;
 	
 	ForgePermissionHandler(ForgedPerms plugin, @Nullable PermissionService perms){
@@ -33,24 +32,16 @@ public class ForgePermissionHandler implements IPermissionHandler{
 		this.plugin = plugin;
 	}
 	
-	void switchPermissionService(@Nonnull PermissionService perms) {
+	void switchPermissionService(@Nonnull PermissionService perms, @Nonnull String plugin_id) {
 		if(perms == null)throw new NullPointerException("The supplied Sponge permission service must not be null");
+		if(plugin_id == null)throw new NullPointerException("The supplied provider plugin id must not be null");
 		this.perms = perms;
+		this.plugin_id = plugin_id;
 	}
 	
 	Optional<Text> getHandlerRepresentation(){
 		if(perms != null) {
-			Optional<ProviderRegistration<PermissionService>> op = Sponge.getGame().getServiceManager().getRegistration(PermissionService.class);
-			if(op.isPresent()) {
-				if(op.get().getProvider() == perms) {
-					return Optional.of(Text.of(TextColors.YELLOW, perms.getClass().getName(), TextColors.RESET, " (", TextColors.GOLD, op.get().getPlugin().getId(), TextColors.RESET, ")"));
-				}else {
-					//This should not happen normally
-					return Optional.of(Text.of(TextColors.YELLOW, perms.getClass().getName(), TextColors.RED, "[Desynchronized, current permission service is " + op.get().getProvider().getClass() + " (" + op.get().getPlugin().getId() + ")]"));
-				}
-			}else {
-				return Optional.of(Text.of(TextColors.YELLOW, perms.getClass().getName()));
-			}
+			return Optional.of(Text.of(TextColors.YELLOW, perms.getClass().getName(), TextColors.RESET, " (", TextColors.GOLD, plugin_id, TextColors.RESET, ")"));
 		}else {
 			return Optional.empty();
 		}

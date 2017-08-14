@@ -9,6 +9,7 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
 import org.spongepowered.api.event.service.ChangeServiceProviderEvent;
@@ -59,7 +60,7 @@ public class ForgedPerms {
 		this.container = Sponge.getPluginManager().fromInstance(this).orElseThrow(() -> new RuntimeException("Unexpected error"));
 
 		PermissionAPI.setPermissionHandler(handler);
-		Sponge.getGame().getServiceManager().provide(PermissionService.class).ifPresent(service -> switchHandler(service));
+		Sponge.getGame().getServiceManager().getRegistration(PermissionService.class).ifPresent(reg -> switchHandler(reg.getProvider(), reg.getPlugin().getId()));
 		
 		Sponge.getGame().getCommandManager().register(this, CommandSpec.builder()
 					.executor((src, args) -> {
@@ -70,6 +71,7 @@ public class ForgedPerms {
 						return CommandResult.success();
 					})
 					.permission("forgedperms")
+					.description(Text.of("Provides the id of the plugin and the class name of the current used Sponge permission handler"))
 					.build()
 				, "forgedperms");
 	}
@@ -81,6 +83,11 @@ public class ForgedPerms {
 		} catch (IOException e) {
 			logger.error("Error saving configuration", e);
 		}
+	}
+	
+	@Listener
+	public void reloadPlugin(GameReloadEvent event) {
+		Sponge.getGame().getServiceManager().getRegistration(PermissionService.class).ifPresent(reg -> switchHandler(reg.getProvider(), reg.getPlugin().getId()));
 	}
 	
 	private void saveConfig() throws IOException {
@@ -96,13 +103,13 @@ public class ForgedPerms {
 	@Listener
 	public void serviceProviderChanged(ChangeServiceProviderEvent event) {
 		if(event.getService() == PermissionService.class) {
-			switchHandler((PermissionService) event.getNewProvider());
+			switchHandler((PermissionService) event.getNewProvider(), event.getNewProviderRegistration().getPlugin().getId());
 		}
 	}
 	
-	private void switchHandler(PermissionService service) {
-		this.handler.switchPermissionService(service);
-		if(logHandlerSwitches)logger.info("Forge permission API has been linked to the permission service of class " + service.getClass().getName());
+	private void switchHandler(PermissionService service, String plugin_id) {
+		this.handler.switchPermissionService(service, plugin_id);
+		if(logHandlerSwitches)logger.info("Forge permission API has been linked to the permission service of class " + service.getClass().getName() + " from plugin " + plugin_id);
 	}
 	
 }
