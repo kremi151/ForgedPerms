@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
@@ -64,6 +65,11 @@ public class ForgePermissionHandler implements IPermissionHandler{
 	@Override
 	public boolean hasPermission(GameProfile profile, String node, IContext context) {
 		if(perms != null) {
+			if(context != null) {
+				if(context.getPlayer() != null) {
+					return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(((Player)context.getPlayer()).getActiveContexts(), node);
+				}
+			}
 			return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(node);
 		}else {
 			return false;
