@@ -65,12 +65,11 @@ public class ForgePermissionHandler implements IPermissionHandler{
 	@Override
 	public boolean hasPermission(GameProfile profile, String node, IContext context) {
 		if(perms != null) {
-			if(context != null) {
-				if(context.getPlayer() != null) {
-					return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(((Player)context.getPlayer()).getActiveContexts(), node);
-				}
+			if(context != null && context.getPlayer() != null) {
+				return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(((Player)context.getPlayer()).getActiveContexts(), node);
+			}else {
+				return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(node);
 			}
-			return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(node);
 		}else {
 			return false;
 		}
