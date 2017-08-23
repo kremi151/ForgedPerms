@@ -27,7 +27,7 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
-@Plugin(id = "forgedperms", name = "ForgedPerms", version = ForgedPerms.VERSION, authors = {"kremi151"}, description = "Linking the Forge permission API to the one of SpongeForge", dependencies = {@Dependency(id = "forge")})
+@Plugin(id = "forgedperms", name = "ForgedPerms", version = ForgedPerms.VERSION, authors = {"kremi151"}, description = "Linking the Forge permission API to the one of SpongeForge", dependencies = {@Dependency(id = "Forge")})
 public class ForgedPerms {
 	
 	public static final String VERSION = "1.0.0.2";

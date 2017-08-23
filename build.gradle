@@ -22,8 +22,8 @@ targetCompatibility = '1.8'
 group = 'lu.kremi151'
 
 minecraft {
-    version = "1.11.2-13.20.1.2393"
-    mappings = "stable_32"
+    version = "1.10.2-12.18.3.2316"
+    mappings = "stable_29"
 }
 
 repositories {
@@ -41,5 +41,5 @@ repositories {
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:6.1.0-SNAPSHOT'
+    compile 'org.spongepowered:spongeapi:5.2.0-SNAPSHOT'
 }
