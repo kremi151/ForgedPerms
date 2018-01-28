@@ -4,7 +4,7 @@ buildscript {
         maven { url = "http://files.minecraftforge.net/maven" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
 
@@ -22,8 +22,8 @@ targetCompatibility = '1.8'
 group = 'lu.kremi151'
 
 minecraft {
-    version = "1.11.2-13.20.1.2393"
-    mappings = "stable_32"
+    version = "1.12.2-14.23.1.2555"
+    mappings = "snapshot_20180127"
 }
 
 repositories {
@@ -41,5 +41,5 @@ repositories {
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:6.1.0-SNAPSHOT'
+    compile 'org.spongepowered:spongeapi:7.1.0-SNAPSHOT'
 }

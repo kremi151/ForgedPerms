@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -50,7 +51,12 @@ public class ForgePermissionHandler implements IPermissionHandler{
 
 	@Override
 	public void registerNode(String node, DefaultPermissionLevel level, String desc) {
-		if(perms != null)perms.newDescriptionBuilder(plugin).ifPresent(builder -> builder.id(node).description(Text.of(desc)).register());
+		if(perms != null) {
+			PermissionDescription.Builder builder = perms.newDescriptionBuilder(plugin);
+			if(builder != null) {
+				builder.id(node).description(Text.of(desc)).register();
+			}
+		}
 	}
 
 	@Override
@@ -65,14 +71,16 @@ public class ForgePermissionHandler implements IPermissionHandler{
 	@Override
 	public boolean hasPermission(GameProfile profile, String node, IContext context) {
 		if(perms != null) {
-			if(context != null && context.getPlayer() != null) {
-				return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(((Player)context.getPlayer()).getActiveContexts(), node);
-			}else {
-				return perms.getUserSubjects().get(profile.getId().toString()).hasPermission(node);
+			Optional<Subject> subject = perms.getUserSubjects().getSubject(profile.getId().toString());
+			if(subject.isPresent()) {
+				if(context != null && context.getPlayer() != null) {
+					return subject.get().hasPermission(((Player)context.getPlayer()).getActiveContexts(), node);
+				}else {
+					return subject.get().hasPermission(node);
+				}
 			}
-		}else {
-			return false;
 		}
+		return false;
 	}
 
 	@Override
@@ -80,7 +88,7 @@ public class ForgePermissionHandler implements IPermissionHandler{
 		if(perms != null) {
 			Optional<PermissionDescription> desc = perms.getDescription(node);
 			if(desc.isPresent()) {
-				return TextSerializers.FORMATTING_CODE.serialize(desc.get().getDescription());
+				return TextSerializers.FORMATTING_CODE.serialize(desc.get().getDescription().orElse(Text.EMPTY));
 			}else {
 				return "";
 			}
